@@ -1,3 +1,4 @@
+
 'use strict';
 
 const assert = require('assert');
@@ -22,36 +23,98 @@ let stacks = {
   c: []
 };
 
-// Start here. What is this function doing?
-const printStacks = () => {
+
+function printStacks(){
   console.log("a: " + stacks.a);
   console.log("b: " + stacks.b);
   console.log("c: " + stacks.c);
 }
 
-// Next, what do you think this function should do?
-const movePiece = () => {
-  // Your code here
+ //move pieces
+function movePiece(token, startStack, endStack){
+  
+ 
+  // move the pieces
+  startStack.pop(token); 
+  endStack.push(token); 
+
+  //check for win  
+  if(checkForWin()){
+    console.log('Congratulations, you won the game!'); 
+  }else{
+    return false; 
+  }
 
 }
 
-// Before you move, should you check if the move it actually allowed? Should 3 be able to be stacked on 2
-const isLegal = () => {
-  // Your code here
+
+function isLegal(startStack, endStack){
+  
+  // string inputs 
+  if(typeof startStack !== 'string' || typeof endStack !== 'string'){
+    
+    return false; 
+  }
+
+  //for loop for objects
+  for(let key in stacks){
+
+    //key in  array
+    if(Array.isArray(stacks[key]) === false){
+     return false; 
+    }
+  }
+
+
+  // trim and make lowercase
+  startStack = startStack.toLowerCase().trim(); 
+  endStack = endStack.toLowerCase().trim(); 
+
+  //input a b c
+  if((startStack !== 'a' && startStack !== 'b' && startStack !== 'c') || (endStack !== 'a' && endStack !== 'b' && endStack !== 'c')){
+    return false; 
+  }
+  startStack = stacks[startStack]; 
+  endStack = stacks[endStack]; 
+ 
+  let lastTokenOfStartStack = startStack[startStack.length -1]; 
+  let lastTokenOfEndStack = endStack[endStack.length -1];
+
+  
+  if(endStack.length === 0){ 
+    movePiece(lastTokenOfStartStack, startStack, endStack); 
+    return true; 
+  }else if(lastTokenOfStartStack < lastTokenOfEndStack){
+    movePiece(lastTokenOfStartStack, startStack, endStack); 
+    return true; 
+  }else{
+    return false; 
+  } 
 
 }
 
-// What is a win in Towers of Hanoi? When should this function run?
-const checkForWin = () => {
-  // Your code here
 
+function checkForWin(){
+  
+  //for loop to go over input and check for win
+  for(let key in stacks){
+    if(stacks[key][0] === 4 && stacks[key][1] === 3 && stacks[key][2] === 2 && stacks[key][3] === 1){
+      return true;  
+    }
+  }
+  return false; 
 }
 
-// When is this function called? What should it do with its argument?
-const towersOfHanoi = (startStack, endStack) => {
-  // Your code here
-
-}
+//illegal move
+function towersOfHanoi(startStack, endStack){
+ 
+  if(isLegal(startStack, endStack)){
+    return true;
+    
+  }else{
+    console.log('Illegal move');
+  }
+};
 
 const getPrompt = () => {
   printStacks();
@@ -101,6 +164,44 @@ if (typeof describe === 'function') {
     });
   });
 
+  //4 additional tests 
+
+  describe('isLegal', function(){
+    it('should only allow string arguments as the input parameters for isLegal function', function(){
+      let actual = isLegal(4, null);
+      let expected = false; 
+      assert.equal(actual, expected); 
+    });
+
+    it('should verify that the value of each key in stacks object is an array',function(){
+      stacks = {
+        a: [4, 3, 2, 1],
+        b: {},
+        c: []
+      }; 
+      let actual = isLegal('a', 'b');
+      let expected = false; 
+      assert.equal(actual, expected); 
+    });
+
+    it('should properly handle uppercase letters with whitespace for the start and end stacks',function(){
+      stacks = {
+        a: [4, 3, 2, 1],
+        b: [],
+        c: []
+      };
+      let actual = isLegal('A   ', '  B');
+      let expected = true; 
+      assert.equal(actual, expected); 
+    });
+
+    it('should check to see that the player is only using A, B, and C as the start and end stack inputs', function(){
+      let actual = isLegal('g', 'f');
+      let expected = false; 
+      assert.equal(actual, expected); 
+    });
+
+  });
 } else {
 
   getPrompt();
